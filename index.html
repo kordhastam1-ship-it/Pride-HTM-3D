@@ -4,187 +4,610 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>3D Car Driving Game</title>
+
 <style>
-*{box-sizing:border-box} body{margin:0;overflow:hidden;background:#101820;font-family:Tahoma,Arial}
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;background:#101820;font-family:Tahoma,Arial}
 canvas{display:block}
-#hud{position:fixed;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;z-index:3;pointer-events:none;color:white}
-.box{background:#071522dd;padding:10px 15px;border:1px solid #ffffff44;border-radius:14px}
+
+#hud{
+position:fixed;top:12px;left:12px;right:12px;
+display:flex;justify-content:space-between;
+z-index:3;pointer-events:none;color:white
+}
+
+.box{
+background:#071522dd;padding:10px 15px;
+border:1px solid #ffffff44;border-radius:14px
+}
+
 #speed{font-size:27px;color:#00eaff;font-weight:bold}
-#title{position:fixed;top:92px;left:15px;color:white;font-size:19px;font-weight:bold;text-shadow:0 2px 8px black;z-index:3}
-#controls{position:fixed;bottom:18px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:end;z-index:4}
+
+#title{
+position:fixed;top:92px;left:15px;
+color:white;font-size:19px;font-weight:bold;
+text-shadow:0 2px 8px black;z-index:3
+}
+
+#controls{
+position:fixed;bottom:18px;left:12px;right:12px;
+display:flex;justify-content:space-between;
+align-items:end;z-index:4
+}
+
 .group{display:flex;gap:9px}
-button{width:66px;height:66px;border-radius:50%;border:2px solid #ffffff88;background:#102b40dd;color:white;font-size:24px;touch-action:none}
+
+button{
+width:66px;height:66px;border-radius:50%;
+border:2px solid #ffffff88;
+background:#102b40dd;color:white;
+font-size:24px;touch-action:none
+}
+
 button:active{background:#00a9cc}
-#extras{position:fixed;top:145px;right:12px;display:flex;flex-direction:column;gap:8px;z-index:4}
-#extras button{width:auto;height:auto;border-radius:12px;padding:10px 12px;font-size:13px}
-#start{position:fixed;inset:0;background:#06121ded;display:grid;place-items:center;z-index:10}
-.card{background:#102b3e;padding:25px;border-radius:22px;text-align:center;color:white;border:1px solid #00cfff;width:min(90%,360px)}
-.card button{width:auto;height:auto;border-radius:12px;padding:14px 30px;background:#00aeca;font-size:17px}
-#message{position:fixed;bottom:105px;left:8px;right:8px;text-align:center;color:white;font-size:13px;z-index:3;text-shadow:0 2px 5px black;pointer-events:none}
+
+#extras{
+position:fixed;top:145px;right:12px;
+display:flex;flex-direction:column;
+gap:8px;z-index:4
+}
+
+#extras button{
+width:auto;height:auto;border-radius:12px;
+padding:10px 12px;font-size:13px
+}
+
+#start{
+position:fixed;inset:0;
+background:#06121ded;display:grid;
+place-items:center;z-index:10
+}
+
+.card{
+background:#102b3e;padding:25px;
+border-radius:22px;text-align:center;
+color:white;border:1px solid #00cfff;
+width:min(90%,360px)
+}
+
+.card button{
+width:auto;height:auto;border-radius:12px;
+padding:14px 30px;background:#00aeca;font-size:17px
+}
+
+#message{
+position:fixed;bottom:105px;left:8px;right:8px;
+text-align:center;color:white;font-size:13px;
+z-index:3;text-shadow:0 2px 5px black;
+pointer-events:none
+}
 </style>
 </head>
+
 <body>
+
 <div id="hud">
- <div class="box">🚘 3D CAR<div style="color:#00eaff">مدل سه‌بعدی واردشده</div></div>
- <div class="box" style="text-align:center"><div id="speed">۰</div>KM/H</div>
+ <div class="box">
+ 🚘 3D CAR
+ <div style="color:#00eaff">مدل سه‌بعدی واردشده</div>
+ </div>
+
+ <div class="box" style="text-align:center">
+ <div id="speed">۰</div>
+ KM/H
+ </div>
 </div>
-<div id="title">3D <span style="color:#ff4444">DRIVING</span></div>
+
+<div id="title">
+3D <span style="color:#ff4444">DRIVING</span>
+</div>
+
 <div id="extras">
- <button id="cameraBtn">📷 تغییر دوربین</button>
- <button id="resetBtn">↻ شروع مجدد</button>
+<button id="cameraBtn">📷 تغییر دوربین</button>
+<button id="resetBtn">↻ شروع مجدد</button>
 </div>
+
 <div id="controls">
- <div class="group"><button id="left">◀</button><button id="right">▶</button></div>
- <div class="group"><button id="brake">▼</button><button id="gas">▲</button></div>
+ <div class="group">
+ <button id="left">◀</button>
+ <button id="right">▶</button>
+ </div>
+
+ <div class="group">
+ <button id="brake">▼</button>
+ <button id="gas">▲</button>
+ </div>
 </div>
-<div id="message">برای حرکت، دکمه گاز را نگه دار</div>
-<div id="start"><div class="card">
+
+<div id="message">
+برای حرکت، دکمه گاز را نگه دار
+</div>
+
+<div id="start">
+ <div class="card">
  <h1>🚘 رانندگی سه‌بعدی</h1>
  <p>مدل ماشین از فایل GLB بارگذاری می‌شود.</p>
  <p id="loadStatus">در حال آماده‌سازی مدل...</p>
  <button id="play">شروع رانندگی</button>
-</div></div>
+ </div>
+</div>
+
 <script type="importmap">
-{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+{
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+ }
+}
 </script>
+
 <script type="module">
+
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const MODEL_URL = './Mustang_13_04_2021_Compressed-compressed.glb';
+// صحنه
 const scene = new THREE.Scene();
+
 scene.background = new THREE.Color(0x83bde8);
-scene.fog = new THREE.Fog(0x83bde8, 55, 230);
-const camera = new THREE.PerspectiveCamera(65, innerWidth/innerHeight, .1, 500);
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
+scene.fog = new THREE.Fog(0x83bde8,55,230);
+
+// دوربین
+const camera = new THREE.PerspectiveCamera(
+65,
+innerWidth/innerHeight,
+0.1,
+500
+);
+
+// رندر
+const renderer = new THREE.WebGLRenderer({
+antialias:true
+});
+
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));
+
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
+
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xffffff, 0x59604a, 2));
-const sun = new THREE.DirectionalLight(0xffffff, 2.2);
-sun.position.set(-20, 35, -20);
+// نور
+scene.add(new THREE.HemisphereLight(0xffffff,0x59604a,2));
+
+const sun = new THREE.DirectionalLight(0xffffff,2.2);
+
+sun.position.set(-20,35,-20);
 sun.castShadow = true;
 sun.shadow.mapSize.set(1024,1024);
+
 scene.add(sun);
 
-const mat = (c) => new THREE.MeshStandardMaterial({color:c, roughness:.85});
-const road = new THREE.Mesh(new THREE.BoxGeometry(14,.2,260),mat(0x34383b));
-road.position.set(0,-.12,-90); road.receiveShadow=true; scene.add(road);
-for (const x of [-7,7]) {
- const edge = new THREE.Mesh(new THREE.BoxGeometry(.25,.03,260),mat(0xe8dfc5));
- edge.position.set(x,-.005,-90); scene.add(edge);
+// متریال
+const mat = (c)=>new THREE.MeshStandardMaterial({
+color:c,
+roughness:.85
+});
+
+// جاده
+const road = new THREE.Mesh(
+new THREE.BoxGeometry(14,.2,260),
+mat(0x34383b)
+);
+
+road.position.set(0,-.12,-90);
+road.receiveShadow=true;
+
+scene.add(road);
+
+// خطوط کناری
+for(const x of [-7,7]){
+
+const edge = new THREE.Mesh(
+new THREE.BoxGeometry(.25,.03,260),
+mat(0xe8dfc5)
+);
+
+edge.position.set(x,-.005,-90);
+
+scene.add(edge);
+
 }
+
+// خط وسط جاده
 const laneMarks=[];
+
 for(let i=0;i<42;i++){
- const m=new THREE.Mesh(new THREE.BoxGeometry(.13,.025,3),mat(0xffffff));
- m.position.set(0,.015,-i*6); scene.add(m); laneMarks.push(m);
+
+const m=new THREE.Mesh(
+new THREE.BoxGeometry(.13,.025,3),
+mat(0xffffff)
+);
+
+m.position.set(0,.015,-i*6);
+
+scene.add(m);
+
+laneMarks.push(m);
+
 }
+
+// درختان و ساختمان‌ها
 for(let i=0;i<34;i++){
- for(const side of [-1,1]){
-  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.12,.18,1.8,8),mat(0x65462e));
-  trunk.position.set(side*(11+Math.random()*3),.8,-i*10); scene.add(trunk);
-  const crown=new THREE.Mesh(new THREE.ConeGeometry(1.15,2.8,8),mat(0x28653a));
-  crown.position.set(trunk.position.x,2.9,trunk.position.z); scene.add(crown);
- }
- const h=7+Math.random()*13, w=4+Math.random()*3;
- const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,5),mat(0x78838d));
- b.position.set(i%2?18:-18,h/2,-i*13); scene.add(b);
+
+for(const side of [-1,1]){
+
+const trunk=new THREE.Mesh(
+new THREE.CylinderGeometry(.12,.18,1.8,8),
+mat(0x65462e)
+);
+
+trunk.position.set(side*(11+Math.random()*3),.8,-i*10);
+
+scene.add(trunk);
+
+const crown=new THREE.Mesh(
+new THREE.ConeGeometry(1.15,2.8,8),
+mat(0x28653a)
+);
+
+crown.position.set(trunk.position.x,2.9,trunk.position.z);
+
+scene.add(crown);
+
 }
 
+const h=7+Math.random()*13;
+const w=4+Math.random()*3;
+
+const b=new THREE.Mesh(
+new THREE.BoxGeometry(w,h,5),
+mat(0x78838d)
+);
+
+b.position.set(i%2?18:-18,h/2,-i*13);
+
+scene.add(b);
+
+}
+
+// ماشین
 const car = new THREE.Group();
+
 scene.add(car);
+
+// وضعیت بارگذاری
 let modelLoaded=false;
+
 const loadStatus=document.getElementById('loadStatus');
-new GLTFLoader().load(MODEL_URL, (gltf)=>{
- const model=gltf.scene;
- model.updateMatrixWorld(true);
- let bounds=new THREE.Box3().setFromObject(model);
- let size=bounds.getSize(new THREE.Vector3());
- // Fit the longest horizontal dimension to a normal passenger car footprint.
- if(size.x > size.z*1.15) model.rotation.y=Math.PI/2;
- model.updateMatrixWorld(true);
- bounds=new THREE.Box3().setFromObject(model);
- const center=bounds.getCenter(new THREE.Vector3());
- model.position.sub(center);
- model.updateMatrixWorld(true);
- bounds=new THREE.Box3().setFromObject(model);
- size=bounds.getSize(new THREE.Vector3());
- const horizontal=Math.max(size.x,size.z);
- const scale=4.5/Math.max(horizontal,.001);
- model.scale.setScalar(scale);
- model.updateMatrixWorld(true);
- bounds=new THREE.Box3().setFromObject(model);
- model.position.y -= bounds.min.y;
- model.traverse(o=>{
-  if(o.isMesh){o.castShadow=true;o.receiveShadow=true;
-   if(o.material){o.material.side=THREE.DoubleSide;}
-  }
- });
- car.add(model);
- modelLoaded=true;
- loadStatus.textContent='مدل ماشین با موفقیت بارگذاری شد';
-}, undefined, (err)=>{
- console.error(err);
- loadStatus.textContent='مدل بارگذاری نشد؛ نام فایل و مسیر را بررسی کن';
- document.getElementById('message').textContent='خطا در بارگذاری مدل؛ اینترنت و نام فایل را بررسی کن';
-});
 
-const keys={gas:false,brake:false,left:false,right:false};
-function bind(id,key){
- const el=document.getElementById(id);
- el.addEventListener('pointerdown',e=>{e.preventDefault();keys[key]=true;el.setPointerCapture(e.pointerId);});
- ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev,()=>keys[key]=false));
+// آدرس مدل ماشین
+const MODEL_URL =
+'./Mustang_13_04_2021_Compressed-compressed.glb';
+
+const loader = new GLTFLoader();
+
+loader.load(
+
+MODEL_URL,
+
+(gltf)=>{
+
+const model=gltf.scene;
+
+// محاسبه محدوده مدل
+model.updateMatrixWorld(true);
+
+let bounds=new THREE.Box3().setFromObject(model);
+
+let size=bounds.getSize(new THREE.Vector3());
+
+// تنظیم جهت ماشین
+if(size.x > size.z*1.15){
+
+model.rotation.y=Math.PI/2;
+
 }
-bind('gas','gas');bind('brake','brake');bind('left','left');bind('right','right');
-addEventListener('keydown',e=>{
- if(e.key==='ArrowUp'||e.key==='w')keys.gas=true;
- if(e.key==='ArrowDown'||e.key==='s')keys.brake=true;
- if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;
- if(e.key==='ArrowRight'||e.key==='d')keys.right=true;
-});
-addEventListener('keyup',e=>{
- if(e.key==='ArrowUp'||e.key==='w')keys.gas=false;
- if(e.key==='ArrowDown'||e.key==='s')keys.brake=false;
- if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;
- if(e.key==='ArrowRight'||e.key==='d')keys.right=false;
+
+model.updateMatrixWorld(true);
+
+// مرکز مدل
+bounds=new THREE.Box3().setFromObject(model);
+
+const center=bounds.getCenter(new THREE.Vector3());
+
+// انتقال مدل به مرکز
+model.position.sub(center);
+
+model.updateMatrixWorld(true);
+
+// محاسبه اندازه جدید
+bounds=new THREE.Box3().setFromObject(model);
+
+size=bounds.getSize(new THREE.Vector3());
+
+// تنظیم اندازه ماشین
+const horizontal=Math.max(size.x,size.z);
+
+const scale=4.5/Math.max(horizontal,.001);
+
+model.scale.setScalar(scale);
+
+model.updateMatrixWorld(true);
+
+// محاسبه مجدد ارتفاع واقعی مدل
+bounds=new THREE.Box3().setFromObject(model);
+
+// قرار دادن کف ماشین روی سطح صفر
+model.position.y -= bounds.min.y;
+
+model.updateMatrixWorld(true);
+
+// فعال‌سازی سایه و متریال
+model.traverse((o)=>{
+
+if(o.isMesh){
+
+o.castShadow=true;
+o.receiveShadow=true;
+
+if(o.material){
+
+o.material.side=THREE.DoubleSide;
+
+}
+
+}
+
 });
 
-let speed=0,steer=0,started=false,cameraMode=0;
+// افزودن ماشین به صحنه
+car.add(model);
+
+// اصلاح ارتفاع ماشین نسبت به جاده
+car.position.set(0,0.04,0);
+
+// ثبت وضعیت
+modelLoaded=true;
+
+loadStatus.textContent='مدل ماشین با موفقیت بارگذاری شد';
+
+document.getElementById('message').textContent=
+'ماشین آماده حرکت است!';
+
+console.log('Car loaded successfully');
+
+console.log('Car size:',size);
+
+console.log('Car position:',car.position);
+
+},
+
+undefined,
+
+(error)=>{
+
+console.error('Model loading error:',error);
+
+loadStatus.textContent=
+'خطا در بارگذاری مدل؛ نام فایل را بررسی کن';
+
+document.getElementById('message').textContent=
+'خطا در بارگذاری مدل؛ اینترنت و نام فایل را بررسی کن';
+
+}
+
+);
+
+// کنترل‌ها
+const keys={
+gas:false,
+brake:false,
+left:false,
+right:false
+};
+
+function bind(id,key){
+
+const el=document.getElementById(id);
+
+el.addEventListener('pointerdown',(e)=>{
+
+e.preventDefault();
+
+keys[key]=true;
+
+el.setPointerCapture(e.pointerId);
+
+});
+
+['pointerup','pointercancel','lostpointercapture'].forEach(ev=>{
+
+el.addEventListener(ev,()=>{
+
+keys[key]=false;
+
+});
+
+});
+
+}
+
+bind('gas','gas');
+bind('brake','brake');
+bind('left','left');
+bind('right','right');
+
+// صفحه کلید
+addEventListener('keydown',(e)=>{
+
+if(e.key==='ArrowUp'||e.key==='w')keys.gas=true;
+if(e.key==='ArrowDown'||e.key==='s')keys.brake=true;
+if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;
+if(e.key==='ArrowRight'||e.key==='d')keys.right=true;
+
+});
+
+addEventListener('keyup',(e)=>{
+
+if(e.key==='ArrowUp'||e.key==='w')keys.gas=false;
+if(e.key==='ArrowDown'||e.key==='s')keys.brake=false;
+if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;
+if(e.key==='ArrowRight'||e.key==='d')keys.right=false;
+
+});
+
+// متغیرهای بازی
+let speed=0;
+let steer=0;
+let started=false;
+let cameraMode=0;
+
 const clock=new THREE.Clock();
-document.getElementById('play').onclick=()=>{started=true;document.getElementById('start').style.display='none';};
-document.getElementById('cameraBtn').onclick=()=>{cameraMode=(cameraMode+1)%2;};
-function resetGame(){speed=0;steer=0;car.position.set(0,0,0);car.rotation.set(0,0,0);}
+
+// شروع
+document.getElementById('play').onclick=()=>{
+
+started=true;
+
+document.getElementById('start').style.display='none';
+
+};
+
+// تغییر دوربین
+document.getElementById('cameraBtn').onclick=()=>{
+
+cameraMode=(cameraMode+1)%2;
+
+};
+
+// شروع مجدد
+function resetGame(){
+
+speed=0;
+steer=0;
+
+car.position.set(0,0.04,0);
+
+car.rotation.set(0,0,0);
+
+}
+
 document.getElementById('resetBtn').onclick=resetGame;
 
+// حلقه بازی
 function animate(){
- requestAnimationFrame(animate);
- const dt=Math.min(clock.getDelta(),.04);
- if(started){
-  if(keys.gas)speed+=32*dt; else speed-=6*dt;
-  if(keys.brake)speed-=65*dt;
-  speed=THREE.MathUtils.clamp(speed,0,160);
-  const direction=(keys.left?-1:0)+(keys.right?1:0);
-  steer+=(direction-steer)*4.5*dt;
-  car.position.x=THREE.MathUtils.clamp(car.position.x+steer*speed*.012*dt*60,-4.8,4.8);
-  car.rotation.y=-steer*.12;
-  const move=speed*.045*dt*60;
-  laneMarks.forEach(m=>{m.position.z+=move;if(m.position.z>car.position.z+12)m.position.z-=252;});
-  document.getElementById('speed').textContent=Math.round(speed).toLocaleString('fa-IR');
- }
- let target,look;
- if(cameraMode===0){target=new THREE.Vector3(car.position.x*.6,4.2,car.position.z+9);look=new THREE.Vector3(car.position.x,1,car.position.z-3);}
- else {target=new THREE.Vector3(car.position.x,2.1,car.position.z+5.5);look=new THREE.Vector3(car.position.x,1,car.position.z-2);}
- camera.position.lerp(target,.09);camera.lookAt(look);
- renderer.render(scene,camera);
+
+requestAnimationFrame(animate);
+
+const dt=Math.min(clock.getDelta(),.04);
+
+if(started){
+
+if(keys.gas)speed+=32*dt;
+else speed-=6*dt;
+
+if(keys.brake)speed-=65*dt;
+
+speed=THREE.MathUtils.clamp(speed,0,160);
+
+// فرمان
+const direction=
+(keys.left?-1:0)+(keys.right?1:0);
+
+steer+=(direction-steer)*4.5*dt;
+
+// حرکت ماشین
+car.position.x=THREE.MathUtils.clamp(
+car.position.x+steer*speed*.012*dt*60,
+-4.8,
+4.8
+);
+
+// چرخش
+car.rotation.y=-steer*.12;
+
+// حرکت خطوط جاده
+const move=speed*.045*dt*60;
+
+laneMarks.forEach(m=>{
+
+m.position.z+=move;
+
+if(m.position.z>car.position.z+12){
+
+m.position.z-=252;
+
 }
+
+});
+
+// نمایش سرعت
+document.getElementById('speed').textContent=
+Math.round(speed).toLocaleString('fa-IR');
+
+}
+
+// دوربین
+let target,look;
+
+if(cameraMode===0){
+
+target=new THREE.Vector3(
+car.position.x*.6,
+4.2,
+car.position.z+9
+);
+
+look=new THREE.Vector3(
+car.position.x,
+1,
+car.position.z-3
+);
+
+}else{
+
+target=new THREE.Vector3(
+car.position.x,
+2.1,
+car.position.z+5.5
+);
+
+look=new THREE.Vector3(
+car.position.x,
+1,
+car.position.z-2
+);
+
+}
+
+camera.position.lerp(target,.09);
+
+camera.lookAt(look);
+
+renderer.render(scene,camera);
+
+}
+
 animate();
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+// تغییر اندازه صفحه
+addEventListener('resize',()=>{
+
+camera.aspect=innerWidth/innerHeight;
+
+camera.updateProjectionMatrix();
+
+renderer.setSize(innerWidth,innerHeight);
+
+});
+
 </script>
+
 </body>
-</html>
+ </html>
