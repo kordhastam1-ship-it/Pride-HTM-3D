@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>3D Car Driving Game</title>
+<title>3D Car Driving</title>
 
 <style>
 *{box-sizing:border-box}
@@ -26,7 +26,7 @@ border:1px solid #ffffff44;border-radius:14px
 #title{
 position:fixed;top:92px;left:15px;
 color:white;font-size:19px;font-weight:bold;
-text-shadow:0 2px 8px black;z-index:3
+z-index:3
 }
 
 #controls{
@@ -48,8 +48,8 @@ button:active{background:#00a9cc}
 
 #extras{
 position:fixed;top:145px;right:12px;
-display:flex;flex-direction:column;
-gap:8px;z-index:4
+display:flex;flex-direction:column;gap:8px;
+z-index:4
 }
 
 #extras button{
@@ -59,8 +59,8 @@ padding:10px 12px;font-size:13px
 
 #start{
 position:fixed;inset:0;
-background:#06121ded;display:grid;
-place-items:center;z-index:10
+background:#06121ded;
+display:grid;place-items:center;z-index:10
 }
 
 .card{
@@ -80,6 +80,17 @@ position:fixed;bottom:105px;left:8px;right:8px;
 text-align:center;color:white;font-size:13px;
 z-index:3;text-shadow:0 2px 5px black;
 pointer-events:none
+}
+
+#progress{
+width:100%;height:9px;
+background:#34495e;border-radius:10px;
+margin-top:12px;overflow:hidden
+}
+
+#progressBar{
+height:100%;width:0%;
+background:#00eaff;transition:width .2s
 }
 </style>
 </head>
@@ -119,16 +130,21 @@ pointer-events:none
  </div>
 </div>
 
-<div id="message">
-برای حرکت، دکمه گاز را نگه دار
-</div>
+<div id="message">در انتظار بارگذاری ماشین</div>
 
 <div id="start">
  <div class="card">
  <h1>🚘 رانندگی سه‌بعدی</h1>
- <p>مدل ماشین از فایل GLB بارگذاری می‌شود.</p>
- <p id="loadStatus">در حال آماده‌سازی مدل...</p>
- <button id="play">شروع رانندگی</button>
+ <p>در حال دریافت مدل واقعی ماشین...</p>
+ <p id="loadStatus">در حال اتصال به GitHub...</p>
+
+ <div id="progress">
+ <div id="progressBar"></div>
+ </div>
+
+ <button id="play" disabled style="opacity:.5">
+ شروع رانندگی
+ </button>
  </div>
 </div>
 
@@ -145,6 +161,10 @@ pointer-events:none
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// آدرس مستقیم مدل واقعی ماشین در GitHub
+const MODEL_URL =
+'https://raw.githubusercontent.com/kordhastam1-ship-it/Pride-HTM-3D/main/Mustang_13_04_2021_Compressed-compressed.glb';
 
 // صحنه
 const scene = new THREE.Scene();
@@ -167,59 +187,56 @@ antialias:true
 
 renderer.setSize(innerWidth,innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));
-
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.1;
 
 document.body.appendChild(renderer.domElement);
 
-// نور
-scene.add(new THREE.HemisphereLight(0xffffff,0x59604a,2));
+// نورپردازی
+scene.add(
+new THREE.HemisphereLight(0xffffff,0x59604a,2)
+);
 
-const sun = new THREE.DirectionalLight(0xffffff,2.2);
+const sun=new THREE.DirectionalLight(0xffffff,2.2);
 
 sun.position.set(-20,35,-20);
-sun.castShadow = true;
+sun.castShadow=true;
 sun.shadow.mapSize.set(1024,1024);
 
 scene.add(sun);
 
 // متریال
-const mat = (c)=>new THREE.MeshStandardMaterial({
+const mat=(c)=>new THREE.MeshStandardMaterial({
 color:c,
 roughness:.85
 });
 
 // جاده
-const road = new THREE.Mesh(
+const road=new THREE.Mesh(
 new THREE.BoxGeometry(14,.2,260),
 mat(0x34383b)
 );
 
 road.position.set(0,-.12,-90);
 road.receiveShadow=true;
-
 scene.add(road);
 
-// خطوط کناری
+// خطوط جاده
 for(const x of [-7,7]){
 
-const edge = new THREE.Mesh(
+const edge=new THREE.Mesh(
 new THREE.BoxGeometry(.25,.03,260),
 mat(0xe8dfc5)
 );
 
 edge.position.set(x,-.005,-90);
-
 scene.add(edge);
 
 }
 
-// خط وسط جاده
 const laneMarks=[];
 
 for(let i=0;i<42;i++){
@@ -230,9 +247,7 @@ mat(0xffffff)
 );
 
 m.position.set(0,.015,-i*6);
-
 scene.add(m);
-
 laneMarks.push(m);
 
 }
@@ -247,7 +262,9 @@ new THREE.CylinderGeometry(.12,.18,1.8,8),
 mat(0x65462e)
 );
 
-trunk.position.set(side*(11+Math.random()*3),.8,-i*10);
+trunk.position.set(
+side*(11+Math.random()*3),.8,-i*10
+);
 
 scene.add(trunk);
 
@@ -256,7 +273,9 @@ new THREE.ConeGeometry(1.15,2.8,8),
 mat(0x28653a)
 );
 
-crown.position.set(trunk.position.x,2.9,trunk.position.z);
+crown.position.set(
+trunk.position.x,2.9,trunk.position.z
+);
 
 scene.add(crown);
 
@@ -271,26 +290,24 @@ mat(0x78838d)
 );
 
 b.position.set(i%2?18:-18,h/2,-i*13);
-
 scene.add(b);
 
 }
 
-// ماشین
-const car = new THREE.Group();
-
+// گروه ماشین
+const car=new THREE.Group();
 scene.add(car);
 
-// وضعیت بارگذاری
 let modelLoaded=false;
 
 const loadStatus=document.getElementById('loadStatus');
+const progressBar=document.getElementById('progressBar');
+const playButton=document.getElementById('play');
 
-// آدرس مدل ماشین
-const MODEL_URL =
-'./Mustang_13_04_2021_Compressed-compressed.glb';
+// بارگذاری مدل
+const loader=new GLTFLoader();
 
-const loader = new GLTFLoader();
+loadStatus.textContent='در حال دریافت فایل ماشین...';
 
 loader.load(
 
@@ -298,57 +315,59 @@ MODEL_URL,
 
 (gltf)=>{
 
+try{
+
 const model=gltf.scene;
 
-// محاسبه محدوده مدل
+// بررسی محدوده مدل
 model.updateMatrixWorld(true);
 
 let bounds=new THREE.Box3().setFromObject(model);
 
 let size=bounds.getSize(new THREE.Vector3());
 
-// تنظیم جهت ماشین
-if(size.x > size.z*1.15){
-
+// اصلاح جهت مدل
+if(size.x>size.z*1.15){
 model.rotation.y=Math.PI/2;
-
 }
 
 model.updateMatrixWorld(true);
 
-// مرکز مدل
+// محاسبه مرکز
 bounds=new THREE.Box3().setFromObject(model);
 
 const center=bounds.getCenter(new THREE.Vector3());
 
-// انتقال مدل به مرکز
 model.position.sub(center);
 
 model.updateMatrixWorld(true);
 
-// محاسبه اندازه جدید
+// اندازه جدید
 bounds=new THREE.Box3().setFromObject(model);
 
 size=bounds.getSize(new THREE.Vector3());
 
-// تنظیم اندازه ماشین
 const horizontal=Math.max(size.x,size.z);
 
-const scale=4.5/Math.max(horizontal,.001);
+if(horizontal<0.001){
+throw new Error('Invalid model dimensions');
+}
+
+// تنظیم اندازه ماشین
+const scale=4.5/horizontal;
 
 model.scale.setScalar(scale);
 
 model.updateMatrixWorld(true);
 
-// محاسبه مجدد ارتفاع واقعی مدل
+// تنظیم ارتفاع دقیق
 bounds=new THREE.Box3().setFromObject(model);
 
-// قرار دادن کف ماشین روی سطح صفر
-model.position.y -= bounds.min.y;
+model.position.y-=bounds.min.y;
 
 model.updateMatrixWorld(true);
 
-// فعال‌سازی سایه و متریال
+// سایه و متریال
 model.traverse((o)=>{
 
 if(o.isMesh){
@@ -357,48 +376,77 @@ o.castShadow=true;
 o.receiveShadow=true;
 
 if(o.material){
-
 o.material.side=THREE.DoubleSide;
-
 }
 
 }
 
 });
 
-// افزودن ماشین به صحنه
+// افزودن به صحنه
 car.add(model);
 
-// اصلاح ارتفاع ماشین نسبت به جاده
-car.position.set(0,0.04,0);
+// موقعیت ماشین روی جاده
+car.position.set(0,.04,0);
 
-// ثبت وضعیت
+// تنظیم مرکز مدل
+car.updateMatrixWorld(true);
+
 modelLoaded=true;
 
-loadStatus.textContent='مدل ماشین با موفقیت بارگذاری شد';
+loadStatus.textContent='✅ ماشین با موفقیت بارگذاری شد';
+
+progressBar.style.width='100%';
+
+playButton.disabled=false;
+playButton.style.opacity='1';
 
 document.getElementById('message').textContent=
-'ماشین آماده حرکت است!';
+'ماشین آماده رانندگی است!';
 
-console.log('Car loaded successfully');
+console.log('MODEL LOADED',bounds);
 
-console.log('Car size:',size);
+}catch(error){
 
-console.log('Car position:',car.position);
+console.error(error);
+
+loadStatus.textContent='خطا در تنظیم مدل: '+error.message;
+
+}
 
 },
 
-undefined,
+(xhr)=>{
+
+if(xhr.lengthComputable && xhr.total>0){
+
+const percent=Math.round(xhr.loaded/xhr.total*100);
+
+progressBar.style.width=percent+'%';
+
+loadStatus.textContent=
+'در حال بارگذاری ماشین: '+percent+'٪';
+
+}else{
+
+const mb=(xhr.loaded/1024/1024).toFixed(2);
+
+loadStatus.textContent=
+'دریافت فایل ماشین: '+mb+' MB';
+
+}
+
+},
 
 (error)=>{
 
-console.error('Model loading error:',error);
+console.error('GLB ERROR:',error);
 
 loadStatus.textContent=
-'خطا در بارگذاری مدل؛ نام فایل را بررسی کن';
+'❌ خطا در دریافت مدل؛ اتصال و آدرس فایل را بررسی کن';
 
 document.getElementById('message').textContent=
-'خطا در بارگذاری مدل؛ اینترنت و نام فایل را بررسی کن';
+'بارگذاری مدل ناموفق بود';
 
 }
 
@@ -470,8 +518,10 @@ let cameraMode=0;
 
 const clock=new THREE.Clock();
 
-// شروع
-document.getElementById('play').onclick=()=>{
+// شروع بازی
+playButton.onclick=()=>{
+
+if(!modelLoaded)return;
 
 started=true;
 
@@ -492,8 +542,7 @@ function resetGame(){
 speed=0;
 steer=0;
 
-car.position.set(0,0.04,0);
-
+car.position.set(0,.04,0);
 car.rotation.set(0,0,0);
 
 }
@@ -516,7 +565,6 @@ if(keys.brake)speed-=65*dt;
 
 speed=THREE.MathUtils.clamp(speed,0,160);
 
-// فرمان
 const direction=
 (keys.left?-1:0)+(keys.right?1:0);
 
@@ -529,10 +577,9 @@ car.position.x+steer*speed*.012*dt*60,
 4.8
 );
 
-// چرخش
 car.rotation.y=-steer*.12;
 
-// حرکت خطوط جاده
+// حرکت جاده
 const move=speed*.045*dt*60;
 
 laneMarks.forEach(m=>{
@@ -547,7 +594,7 @@ m.position.z-=252;
 
 });
 
-// نمایش سرعت
+// سرعت
 document.getElementById('speed').textContent=
 Math.round(speed).toLocaleString('fa-IR');
 
@@ -587,7 +634,6 @@ car.position.z-2
 }
 
 camera.position.lerp(target,.09);
-
 camera.lookAt(look);
 
 renderer.render(scene,camera);
@@ -600,7 +646,6 @@ animate();
 addEventListener('resize',()=>{
 
 camera.aspect=innerWidth/innerHeight;
-
 camera.updateProjectionMatrix();
 
 renderer.setSize(innerWidth,innerHeight);
@@ -608,6 +653,5 @@ renderer.setSize(innerWidth,innerHeight);
 });
 
 </script>
-
 </body>
  </html>
